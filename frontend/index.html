@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>WorkForceHub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginPage" class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">&#128101;</div>
+      <h1>WorkForceHub</h1>
+      <p>Employee &amp; Performance Management</p>
+    </div>
+    <h2>Sign in to your account</h2>
+    <div id="loginError" class="login-error"></div>
+    <form class="login-form" id="loginForm">
+      <div class="form-group"><label>Username</label><input type="text" id="loginUsername" placeholder="Enter username" autocomplete="username" required></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password" required></div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+    </form>
+    <div class="login-hint">Demo: <strong>admin</strong> / <strong>admin123</strong></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="appShell" class="app-layout" style="display:none">
+  <button class="sidebar-toggle btn btn-ghost btn-icon" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#128101;</div>
+      <div class="sidebar-logo-text"><h1>WorkForceHub</h1><p>Management System</p></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">&#128202;</span> Dashboard</div>
+      <div class="nav-section-label">People</div>
+      <div class="nav-item" data-page="employees"><span class="nav-icon">&#128101;</span> Employees</div>
+      <div class="nav-item" data-page="departments"><span class="nav-icon">&#127970;</span> Departments</div>
+      <div class="nav-section-label">Operations</div>
+      <div class="nav-item" data-page="attendance"><span class="nav-icon">&#128197;</span> Attendance</div>
+      <div class="nav-item" data-page="leaves"><span class="nav-icon">&#127796;</span> Leaves</div>
+      <div class="nav-item" data-page="performance"><span class="nav-icon">&#11088;</span> Performance</div>
+      <div class="nav-item" data-page="trainings"><span class="nav-icon">&#127891;</span> Trainings</div>
+      <div class="nav-item" data-page="documents"><span class="nav-icon">&#128196;</span> Documents</div>
+      <div class="nav-section-label">Insights</div>
+      <div class="nav-item" data-page="reports"><span class="nav-icon">&#128200;</span> Reports</div>
+      <div class="nav-item" data-page="analytics"><span class="nav-icon">&#128269;</span> Analytics</div>
+      <div class="nav-item" data-page="payroll"><span class="nav-icon">&#128176;</span> Payroll</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info-text"><div class="name" id="sidebarUsername">Loading...</div><div class="role" id="sidebarRole"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div><div class="topbar-title" id="topbarTitle">Dashboard</div><div class="topbar-subtitle" id="topbarSubtitle">Welcome back</div></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-icon" id="themeToggleBtn" title="Toggle theme">&#127769;</button>
+        <button class="btn btn-secondary btn-sm" id="logoutBtn">Sign out</button>
+      </div>
+    </header>
+    <main class="page-body">
+
+      <!-- Dashboard -->
+      <section id="page-dashboard" class="page active">
+        <div class="stats-grid" id="dashStats">
+          <div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div>
+          <div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div>
+        </div>
+        <div class="quick-actions" id="quickActions"></div>
+        <div class="dash-grid">
+          <div class="card"><div class="card-header"><span class="card-title">&#127970; Department Distribution</span></div><div class="card-body" id="deptChart"><div class="skeleton" style="height:120px"></div></div></div>
+          <div class="card"><div class="card-header"><span class="card-title">&#128197; Today's Attendance</span></div><div class="card-body" id="todayAttChart"><div class="skeleton" style="height:120px"></div></div></div>
+        </div>
+      </section>
+
+      <!-- Employees -->
+      <section id="page-employees" class="page" style="display:none">
+        <div class="section-header">
+          <h2>Employees</h2>
+          <div class="section-header-actions">
+            <div class="view-toggle">
+              <button id="empViewTable" class="active" onclick="setEmpView('table')" title="Table view">&#9776;</button>
+              <button id="empViewCards" onclick="setEmpView('cards')" title="Card view">&#9632;&#9632;</button>
+            </div>
+            <select id="empDeptFilter" onchange="loadEmployees(1)" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);color:var(--text);font-size:.8rem">
+              <option value="">All Departments</option>
+            </select>
+            <input type="search" id="empSearch" placeholder="&#128269; Search name, email, position..." style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);color:var(--text);font-size:.8rem;width:230px">
+            <button class="btn btn-primary" id="addEmployeeBtn">+ Add Employee</button>
+          </div>
+        </div>
+        <div class="card" id="empTableCard">
+          <div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Position</th><th>Department</th><th>Salary</th><th>Hire Date</th><th>Actions</th></tr></thead><tbody id="employeeList"></tbody></table></div>
+          <div class="pagination" id="empPagination"></div>
+        </div>
+        <div id="empCardsContainer" style="display:none">
+          <div class="emp-cards" id="empCardsList"></div>
+          <div class="pagination" id="empCardsPagination" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-top:14px"></div>
+        </div>
+      </section>
+
+      <!-- Departments -->
+      <section id="page-departments" class="page" style="display:none">
+        <div class="section-header"><h2>Departments</h2><button class="btn btn-primary" id="addDeptBtn">+ Add Department</button></div>
+        <div class="card"><div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th><th>Manager</th><th>Employees</th><th>Actions</th></tr></thead><tbody id="departmentList"></tbody></table></div></div>
+      </section>
+
+      <!-- Attendance -->
+      <section id="page-attendance" class="page" style="display:none">
+        <div class="section-header">
+          <h2>Attendance</h2>
+          <div class="section-header-actions">
+            <input type="date" id="attFilterDate" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);color:var(--text);font-size:.8rem">
+            <select id="attFilterStatus" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);color:var(--text);font-size:.8rem">
+              <option value="">All Status</option><option value="present">Present</option><option value="absent">Absent</option><option value="leave">Leave</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="filterAttendance()">Filter</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearAttFilter()">Clear</button>
+            <button class="btn btn-primary" id="addAttendanceBtn">+ Add Record</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Date</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Actions</th></tr></thead><tbody id="attendanceList"></tbody></table></div>
+          <div class="pagination" id="attPagination"></div>
+        </div>
+      </section>
+
+      <!-- Leaves -->
+      <section id="page-leaves" class="page" style="display:none">
+        <div class="section-header"><h2>Leave Requests</h2><button class="btn btn-primary" id="addLeaveBtn">+ Request Leave</button></div>
+        <div class="card"><div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Type</th><th>Duration</th><th>Status</th><th>Reason</th><th>Actions</th></tr></thead><tbody id="leaveList"></tbody></table></div><div class="pagination" id="leavePagination"></div></div>
+      </section>
+
+      <!-- Performance -->
+      <section id="page-performance" class="page" style="display:none">
+        <div class="section-header"><h2>Performance Reviews</h2><button class="btn btn-primary" id="addPerfBtn" style="display:none">+ Add Review</button></div>
+        <div class="card"><div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Review Date</th><th>Rating</th><th>Comments</th><th>Reviewed By</th><th>Actions</th></tr></thead><tbody id="performanceList"></tbody></table></div><div class="pagination" id="perfPagination"></div></div>
+      </section>
+
+      <!-- Trainings -->
+      <section id="page-trainings" class="page" style="display:none">
+        <div class="section-header"><h2>Trainings</h2><button class="btn btn-primary" id="addTrainingBtn">+ Add Training</button></div>
+        <div class="card"><div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Title</th><th>Trainer</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr></thead><tbody id="trainingList"></tbody></table></div><div class="pagination" id="trainingPagination"></div></div>
+      </section>
+
+      <!-- Documents -->
+      <section id="page-documents" class="page" style="display:none">
+        <div class="section-header"><h2>Documents</h2><button class="btn btn-primary" id="addDocBtn">+ Upload Document</button></div>
+        <div class="card"><div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Type</th><th>File Name</th><th>Uploaded By</th><th>Date</th><th>Actions</th></tr></thead><tbody id="documentList"></tbody></table></div><div class="pagination" id="docPagination"></div></div>
+      </section>
+
+      <!-- Reports -->
+      <section id="page-reports" class="page" style="display:none">
+        <div class="section-header"><h2>Reports</h2></div>
+        <div class="dash-grid">
+          <div class="card"><div class="card-header"><span class="card-title">&#128197; Monthly Attendance</span></div><div class="card-body"><div class="report-controls"><div class="form-group"><label>Month</label><input type="month" id="reportMonth"></div><button class="btn btn-primary" onclick="generateMonthlyReport()">Generate</button></div><div id="monthlyReportResult"></div></div></div>
+          <div class="card"><div class="card-header"><span class="card-title">&#11088; Performance Summary</span></div><div class="card-body"><div class="report-controls"><div class="form-group"><label>Department</label><select id="reportDeptSelect"><option value="">All Departments</option></select></div><div class="form-group"><label>Min Rating</label><input type="number" id="reportMinRating" min="1" max="5" placeholder="1–5" style="width:70px"></div><button class="btn btn-primary" onclick="generatePerformanceReport()">Generate</button></div><div id="perfReportResult"></div></div></div>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section id="page-analytics" class="page" style="display:none">
+        <div class="section-header"><h2>Analytics</h2><button class="btn btn-secondary btn-sm" onclick="loadAnalytics()">&#8635; Refresh</button></div>
+        <div class="analytics-grid">
+          <div class="card"><div class="card-header"><span class="card-title">&#128101; Employee Retention</span></div><div class="card-body" id="retentionCard"><div class="skeleton" style="height:100px"></div></div></div>
+          <div class="card"><div class="card-header"><span class="card-title">&#11088; Performance Distribution</span></div><div class="card-body" id="perfDistCard"><div class="skeleton" style="height:100px"></div></div></div>
+          <div class="card"><div class="card-header"><span class="card-title">&#127970; Department Performance</span></div><div class="card-body" id="deptPerfCard"><div class="skeleton" style="height:100px"></div></div></div>
+          <div class="card"><div class="card-header"><span class="card-title">&#128200; 7-Day Attendance Trends</span></div><div class="card-body" id="trendCard"><div class="skeleton" style="height:100px"></div></div></div>
+        </div>
+      </section>
+
+      <!-- Payroll -->
+      <section id="page-payroll" class="page" style="display:none">
+        <div class="section-header"><h2>Payroll</h2></div>
+        <div class="card" style="max-width:500px">
+          <div class="card-header"><span class="card-title">&#128176; Generate Payslip</span></div>
+          <div class="card-body">
+            <div class="form-group mb-3"><label>Employee *</label><select id="payrollEmpSelect"><option value="">Select employee</option></select></div>
+            <div class="form-group mb-3"><label>Month *</label><input type="month" id="payrollMonth"></div>
+            <button class="btn btn-primary" onclick="generatePayslip()">&#128196; Generate PDF</button>
+            <div id="payslipResult" style="margin-top:16px"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<!-- Employee Modal -->
+<div class="modal-overlay" id="employeeModal"><div class="modal">
+  <div class="modal-header"><h3 id="empModalTitle">Add Employee</h3><button class="modal-close" onclick="closeModal('employeeModal')">&#10005;</button></div>
+  <div class="modal-body"><input type="hidden" id="empId"><div class="form-grid">
+    <div class="form-group"><label>Full Name *</label><input type="text" id="empName" placeholder="John Doe" required></div>
+    <div class="form-group"><label>Email *</label><input type="email" id="empEmail" placeholder="john@company.com" required></div>
+    <div class="form-group"><label>Position *</label><input type="text" id="empPosition" placeholder="Software Engineer" required></div>
+    <div class="form-group"><label>Department *</label><select id="empDepartment" required><option value="">Select department</option></select></div>
+    <div class="form-group"><label>Salary</label><input type="number" id="empSalary" min="0" placeholder="0"></div>
+    <div class="form-group"><label>Hire Date</label><input type="date" id="empHireDate"></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('employeeModal')">Cancel</button><button class="btn btn-primary" onclick="submitEmployee()">Save Employee</button></div>
+</div></div>
+
+<!-- Department Modal -->
+<div class="modal-overlay" id="departmentModal"><div class="modal">
+  <div class="modal-header"><h3 id="deptModalTitle">Add Department</h3><button class="modal-close" onclick="closeModal('departmentModal')">&#10005;</button></div>
+  <div class="modal-body"><input type="hidden" id="deptId"><div class="form-grid">
+    <div class="form-group full"><label>Department Name *</label><input type="text" id="deptName" placeholder="Engineering" required></div>
+    <div class="form-group full"><label>Description</label><textarea id="deptDescription" placeholder="Brief description..."></textarea></div>
+    <div class="form-group full"><label>Manager</label><select id="deptManagerEmp"><option value="">No manager assigned</option></select></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('departmentModal')">Cancel</button><button class="btn btn-primary" onclick="submitDepartment()">Save Department</button></div>
+</div></div>
+
+<!-- Attendance Modal -->
+<div class="modal-overlay" id="attendanceModal"><div class="modal">
+  <div class="modal-header"><h3>Add Attendance Record</h3><button class="modal-close" onclick="closeModal('attendanceModal')">&#10005;</button></div>
+  <div class="modal-body"><input type="hidden" id="attId"><div class="form-grid">
+    <div class="form-group full"><label>Employee *</label><select id="attEmployeeId" required><option value="">Select employee</option></select></div>
+    <div class="form-group">
+      <label>Date *</label>
+      <div class="input-group"><input type="date" id="attDate" required><button class="btn btn-ghost btn-sm" onclick="document.getElementById('attDate').value=new Date().toISOString().split('T')[0]" title="Set today">Today</button></div>
+    </div>
+    <div class="form-group"><label>Status *</label><select id="attStatus" required><option value="">Select</option><option value="present">&#9989; Present</option><option value="absent">&#10060; Absent</option><option value="leave">&#127796; Leave</option></select></div>
+    <div class="form-group"><label>Check In</label><input type="time" id="attCheckIn"></div>
+    <div class="form-group"><label>Check Out</label><input type="time" id="attCheckOut"></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('attendanceModal')">Cancel</button><button class="btn btn-primary" onclick="submitAttendance()">Save Record</button></div>
+</div></div>
+
+<!-- Leave Modal -->
+<div class="modal-overlay" id="leaveModal"><div class="modal">
+  <div class="modal-header"><h3>Request Leave</h3><button class="modal-close" onclick="closeModal('leaveModal')">&#10005;</button></div>
+  <div class="modal-body"><div class="form-grid">
+    <div class="form-group"><label>Start Date *</label><input type="date" id="leaveStart" required></div>
+    <div class="form-group"><label>End Date *</label><input type="date" id="leaveEnd" required></div>
+    <div class="form-group full"><label>Leave Type *</label><select id="leaveType" required><option value="">Select type</option><option value="sick">&#129298; Sick Leave</option><option value="vacation">&#127958; Vacation</option><option value="personal">&#128100; Personal</option><option value="maternity">&#128118; Maternity</option><option value="paternity">&#128104; Paternity</option><option value="unpaid">&#128181; Unpaid</option></select></div>
+    <div class="form-group full"><label>Reason *</label><textarea id="leaveReason" placeholder="Brief reason for leave..." required></textarea></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('leaveModal')">Cancel</button><button class="btn btn-primary" onclick="submitLeave()">Submit Request</button></div>
+</div></div>
+
+<!-- Leave Status Modal -->
+<div class="modal-overlay" id="leaveStatusModal"><div class="modal" style="max-width:380px">
+  <div class="modal-header"><h3>Update Leave Status</h3><button class="modal-close" onclick="closeModal('leaveStatusModal')">&#10005;</button></div>
+  <div class="modal-body"><input type="hidden" id="leaveStatusId">
+    <div class="form-group"><label>New Status</label><select id="leaveStatusValue"><option value="pending">&#9203; Pending</option><option value="approved">&#9989; Approved</option><option value="rejected">&#10060; Rejected</option></select></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('leaveStatusModal')">Cancel</button><button class="btn btn-primary" onclick="submitLeaveStatus()">Update</button></div>
+</div></div>
+
+<!-- Performance Modal -->
+<div class="modal-overlay" id="performanceModal"><div class="modal">
+  <div class="modal-header"><h3>Add Performance Review</h3><button class="modal-close" onclick="closeModal('performanceModal')">&#10005;</button></div>
+  <div class="modal-body"><div class="form-grid">
+    <div class="form-group full"><label>Employee *</label><select id="perfEmployeeId" required><option value="">Select employee</option></select></div>
+    <div class="form-group"><label>Review Date</label><input type="date" id="perfDate"></div>
+    <div class="form-group"><label>Rating * (1–5)</label><input type="number" id="perfRating" min="1" max="5" step="0.1" placeholder="4.5" required></div>
+    <div class="form-group full"><label>Comments</label><textarea id="perfComments" placeholder="Performance notes..."></textarea></div>
+    <div class="form-group full"><label>Reviewed By</label><input type="text" id="perfReviewedBy" placeholder="Manager name"></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('performanceModal')">Cancel</button><button class="btn btn-primary" onclick="submitPerformance()">Save Review</button></div>
+</div></div>
+
+<!-- Training Modal -->
+<div class="modal-overlay" id="trainingModal"><div class="modal">
+  <div class="modal-header"><h3 id="trainingModalTitle">Add Training</h3><button class="modal-close" onclick="closeModal('trainingModal')">&#10005;</button></div>
+  <div class="modal-body"><input type="hidden" id="trainingId"><div class="form-grid">
+    <div class="form-group full"><label>Employee *</label><select id="trainingEmployeeId" required><option value="">Select employee</option></select></div>
+    <div class="form-group full"><label>Training Title *</label><input type="text" id="trainingTitle" placeholder="React Advanced Patterns" required></div>
+    <div class="form-group full"><label>Description</label><textarea id="trainingDesc" placeholder="What will be covered..."></textarea></div>
+    <div class="form-group"><label>Trainer / Provider</label><input type="text" id="trainingTrainer" placeholder="Trainer name"></div>
+    <div class="form-group"><label>Status</label><select id="trainingStatus"><option value="in_progress">In Progress</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div>
+    <div class="form-group"><label>Start Date *</label><input type="date" id="trainingStart" required></div>
+    <div class="form-group"><label>End Date</label><input type="date" id="trainingEnd"></div>
+    <div class="form-group full"><label>Certificate URL</label><input type="text" id="trainingCert" placeholder="https://..."></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('trainingModal')">Cancel</button><button class="btn btn-primary" onclick="submitTraining()">Save Training</button></div>
+</div></div>
+
+<!-- Document Modal -->
+<div class="modal-overlay" id="documentModal"><div class="modal">
+  <div class="modal-header"><h3>Upload Document</h3><button class="modal-close" onclick="closeModal('documentModal')">&#10005;</button></div>
+  <div class="modal-body"><div class="form-grid">
+    <div class="form-group full"><label>Employee</label><select id="docEmployeeId"><option value="">Select employee (optional)</option></select></div>
+    <div class="form-group"><label>Document Type *</label><select id="docType" required><option value="">Select type</option><option value="contract">Contract</option><option value="certificate">Certificate</option><option value="id_proof">ID Proof</option><option value="degree">Degree</option><option value="other">Other</option></select></div>
+    <div class="form-group"><label>File Name *</label><input type="text" id="docFileName" placeholder="contract_2024.pdf" required></div>
+    <div class="form-group full"><label>File URL *</label><input type="text" id="docFileUrl" placeholder="https://..." required></div>
+    <div class="form-group full"><label>Description</label><textarea id="docDescription" placeholder="Optional notes..."></textarea></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('documentModal')">Cancel</button><button class="btn btn-primary" onclick="submitDocument()">Upload</button></div>
+</div></div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal"><div class="modal" style="max-width:380px">
+  <div class="modal-header"><h3>Confirm Delete</h3><button class="modal-close" onclick="closeModal('confirmModal')">&#10005;</button></div>
+  <div class="modal-body"><p id="confirmMessage" style="color:var(--text);font-size:.875rem;line-height:1.6"></p></div>
+  <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button><button class="btn btn-danger" id="confirmOkBtn">Delete</button></div>
+</div></div>
+
+<script src="auth.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
